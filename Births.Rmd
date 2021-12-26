@@ -1,0 +1,133 @@
+---
+title: "Births 2018"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This dataset collected information on United States births in 2018. This dataset can be downloaded for **free** using Kaggle.com. 
+
+##### Link 
+https://www.kaggle.com/des137/us-births-2018/version/2
+
+##### User Guide
+https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Dataset_Documentation/DVS/natality/UserGuide2018-508.pdf
+
+## Import Dataset
+
+```{r, message=FALSE}
+library(readr)
+us.births <- read_csv("~/Documents/DA/US_births(2018).csv")
+```
+
+## Create Dateframe Containing Targeted Variables 
+
+```{r}
+df.births <- data.frame(us.births$MAGER, us.births$MRACE15, us.births$DMAR, us.births$MEDUC, us.births$PREVIS, us.births$RF_CESAR, us.births$RF_CESARN, us.births$LD_INDL, us.births$RDMETH_REC, us.births$ATTEND, us.births$PAY_REC)
+```
+
+### Targeted Variables
+
+* MAGER
+     + Age of Birthing Person
+* MRACE15
+     + Race of Birthing Person
+* DMAR
+     + Marital Status of Birthing Person
+* MEDUC
+     + Education Description of Birthing Person
+* PAY_REC
+     + Payment Method 
+* PREVIS
+     + Number of Prenatal Visits
+* RDMETH_REC
+     + Method of Delivery
+* RF_CESAR
+     + Previous Cesarean Section Recorded
+* RF_CESARN
+     + Number of Previous Cesarean Section Births Recorded
+* ATTEND
+     + Birth Attendant During Delivery
+* LD_INDL
+     + Labor Induction Method Recorded
+
+## Cleaning Dateframe
+
+```{r, include=FALSE}
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+str(df.births)
+summary(df.births)
+```
+
+```{r, mager}
+df.births$us.births.MAGER<- as.numeric(df.births$us.births.MAGER)
+```
+
+```{r, mrace15}
+df.births$us.births.MRACE15<- recode_factor(df.births$us.births.MRACE15,`1` = "White (only)", `2` = "Black (only)", `3` = "AIAN (only)", '4' = "Asian Indian (only)", '5' = "Chinese (only)", '6' = "Filipino (only)", '7' = "Japanese (only)", '8' = "Korean (only)", '9' = "Vietnamese (only)", '10' = "Other Asian (only)", '11' = "Hawaiian (only)", '12' = "Guamanian (only)", '13' = "Samoan (only)", '14' = "Other Pacific Islander (only)", '15' = "More than one race")
+```
+
+```{r, dmar}
+df.births$us.births.DMAR<- recode_factor(df.births$us.births.DMAR, '1' = "Married", '2' = "Not Married")
+```
+
+```{r, meduc}
+df.births$us.births.MEDUC[df.births$us.births.MEDUC==9]<- NA
+df.births$us.births.MEDUC<- recode_factor(df.births$us.births.MEDUC, '1' = "8th grade or less", '2' = "9th through 12th grade with no diploma", '3' = "High school graduate or GED completed", '4' = "Some college credit, but not a degree.", '5' = "Associate degree (AA,AS)", '6' = "Bachelor’s degree (BA, AB, BS)", '7' = "Master’s degree (MA, MS, MEng, MEd, MSW, MBA)", '8' = "Doctorate (PhD, EdD) or Professional Degree (MD, DDS,
+DVM, LLB, JD)")
+```
+
+```{r, payrec}
+df.births$us.births.PAY_REC[df.births$us.births.PAY_REC==9]<- NA
+df.births$us.births.PAY_REC<- recode_factor(df.births$us.births.PAY_REC, '1' =
+"Medicaid", '2' = "Private Insurance", '3' = "Self Pay", '4' = "Other")
+```
+
+```{r, previs}
+df.births$us.births.PREVIS[df.births$us.births.PREVIS==99]<- NA
+df.births$us.births.PREVIS<- as.numeric(df.births$us.births.PREVIS)
+```
+
+```{r, methrec}
+df.births$us.births.RDMETH_REC[df.births$us.births.RDMETH_REC==9]<- NA
+df.births$us.births.RDMETH_REC<- recode_factor(df.births$us.births.RDMETH_REC,'1'= "Vaginal (excludes vaginal after previous C-section)", '2' = "Vaginal after previous c-section",'3' = "Primary C-section",'4' = "Repeat C-section", '5' = "Vaginal (unknown if previous c-section)", '6' = "C-section (unknown if previous c-section)")
+```
+
+```{r, csec}
+df.births$us.births.RF_CESAR<- recode_factor(df.births$us.births.RF_CESAR, 'Y' = "YES", 'N' = "No", 'U' = "Unknown or not stated")
+```
+
+```{r, numcsec}
+df.births$us.births.RF_CESARN<- as.numeric(df.births$us.births.RF_CESARN)
+df.births$us.births.RF_CESARN[df.births$us.births.RF_CESARN==99]<- NA
+```
+
+```{r, attenrec}
+df.births$us.births.ATTEND[df.births$us.births.ATTEND==9]<- NA
+df.births$us.births.ATTEND<- recode_factor(df.births$us.births.ATTEND, '1' = "Doctor of Medicine (MD)", '2' = "Doctor of Osteopathy (DO)", '3' = "Certified Nurse Midwife (CNM)", '4' = "Other Midwife", '5' = "Other", '9' = "Unknown or not stated")
+```
+
+```{r, indrec}
+df.births$us.births.LD_INDL<- recode_factor(df.births$us.births.LD_INDL, 'Y' = "YES", 'N' = "No", 'U' = "Unknown or not stated")
+```
+
+```{r}
+str(df.births)
+summary(df.births)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
